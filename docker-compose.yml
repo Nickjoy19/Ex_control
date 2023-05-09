@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+    pgdb:
+        image: postgres:14.5
+        container_name: pgdb
+        env_file: django_app/.env
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./data:/var/lib/postgresql/data
+
+    django:
+        build:
+            context: django_app
+            dockerfile: Dockerfile
+        container_name: django
+        command: /bin/bash -c "exec invoke runprod"
+        volumes:
+            - ./django_app:/usr/src/app
+        ports:
+            - "8000:8000"
+        depends_on:
+            - pgdb
+        env_file: django_app/.env
+
+    react:
+        image: node:18.16.0
+        container_name: react
+        volumes:
+            - ./frontend:/frontend
+        working_dir: /frontend
+        expose:
+            - 5173
+        ports:
+            - "5173:5173"
+        command: bash -c "npm install && npm run dev"
+
+    nginx:
+        image: nginx:1.23.0
+        container_name: nginx
+        volumes:
+            - ./nginx/dev_nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./django_app/staticfiles:/static
+        ports:
+            - "80:80"
+        depends_on:
+            - django

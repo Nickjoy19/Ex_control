@@ -1,0 +1,5 @@
+.env
+staticfiles/
+
+__pycache__/
+.idea/

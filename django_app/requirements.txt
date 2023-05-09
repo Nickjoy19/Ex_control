@@ -1,0 +1,4 @@
+Django==4.2
+psycopg2==2.8.5
+django-cors-headers==3.14.0
+invoke==2.0.0
